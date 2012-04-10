@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Forex_Strategy_Builder.Enumerations;
 
 namespace Forex_Strategy_Builder
 {
@@ -69,8 +70,12 @@ namespace Forex_Strategy_Builder
                 strBBCode += "Adding lots: " + AddingLots.ToString("F2") + tradingUnit + nl;
             if (OppSignalAction == OppositeDirSignalAction.Reduce)
                 strBBCode += "Reducing lots: " + ReducingLots.ToString("F2") + tradingUnit + nl;
-            if (UseMartingale)
+            if (MoneyManagementStrat != MoneyManageStrategy.None)
+            {
+                strBBCode += "Money management used:" + MoneyManagementStrat + nl;
                 strBBCode += "Martingale money management multiplier: " + MartingaleMultiplier.ToString("F2") + nl;
+            }
+                
 
             strBBCode += nl;
             strBBCode += "Intrabar scanning: "    + (Backtester.IsScanPerformed ? "Accomplished" : "Not accomplished") + nl;
@@ -786,8 +791,9 @@ namespace Forex_Strategy_Builder
                 sb.AppendLine("</ul>");
             }
 
-            if (UseMartingale)
+            if (MoneyManagementStrat != MoneyManageStrategy.None)
             {
+                sb.AppendLine("<p>" + Language.T("Money management used") + " " + MoneyManagementStrat  + "." + "</p>");
                 sb.AppendLine("<p>" + Language.T("Apply Martingale money management system with multiplier of") + " " + MartingaleMultiplier.ToString("F2") + "." + "</p>");
             }
 
@@ -871,8 +877,11 @@ namespace Forex_Strategy_Builder
             string sTradingUnit = UseAccountPercentEntry ? Language.T("% of the account equity") : "";
             sb.AppendLine("<tr><td>" + Language.T("Maximum number of open lots")                    + "</td><td> - " + MaxOpenLots  +  "</td></tr>");
             sb.AppendLine("<tr><td>" + Language.T("Number of entry lots for a new position")        + "</td><td> - " + EntryLots    + sTradingUnit + "</td></tr>");
-            if (UseMartingale)
+            if (MoneyManagementStrat != MoneyManageStrategy.None)
+            {
+                sb.AppendLine("<tr><td>" + Language.T("Money management used ") + "</td><td> - " + MoneyManagementStrat + "</td></tr>");
                 sb.AppendLine("<tr><td>" + Language.T("Martingale money management multiplier") + "</td><td> - " + MartingaleMultiplier.ToString("F2") + "</td></tr>");
+            }
             if (SameSignalAction== SameDirSignalAction.Add || SameSignalAction == SameDirSignalAction.Winner)
                 sb.AppendLine("<tr><td>" + Language.T("In case of addition - number of lots to add")    + "</td><td> - " + AddingLots   + sTradingUnit + "</td></tr>");
             if (OppSignalAction == OppositeDirSignalAction.Reduce)
@@ -1053,7 +1062,7 @@ namespace Forex_Strategy_Builder
             str += "Entry lots - "          + EntryLots       + nl;
             str += "Adding lots - "         + AddingLots      + nl;
             str += "Reducing lots - "       + ReducingLots    + nl;
-            str += "Use Martingale MM - "   + UseMartingale + nl;
+            str += "MM used - "             + MoneyManagementStrat + nl;
             str += "Martingale multiplier - " + MartingaleMultiplier + nl;
             str += "Use Permanent S/L - "   + UsePermanentSL + nl;
             str += "Permanent S/L - "       + PermanentSLType + " " + PermanentSL + nl;

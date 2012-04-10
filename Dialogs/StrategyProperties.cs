@@ -7,6 +7,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Forex_Strategy_Builder.Enumerations;
 
 namespace Forex_Strategy_Builder
 {
@@ -19,7 +20,9 @@ namespace Forex_Strategy_Builder
         private ComboBox CbxPermaSLType { get; set; }
         private ComboBox CbxPermaTPType { get; set; }
         private ComboBox CbxSameDirAction { get; set; }
-        private CheckBox CbxUseMartingale { get; set; }
+        private ComboBox CbxMoneyManagement { get; set; }
+
+        private Label LblMMultipler { get; set; }
         private CheckBox ChbBreakEven { get; set; }
         private CheckBox ChbPermaSL { get; set; }
         private CheckBox ChbPermaTP { get; set; }
@@ -33,6 +36,7 @@ namespace Forex_Strategy_Builder
         private Label LblPercent3 { get; set; }
         private Label LblReducingLots { get; set; }
         private Label LblSameDirAction { get; set; }
+        private Label LblMoneyManage { get; set; }
         private NUD NUDAddingLots { get; set; }
         private NUD NUDBreakEven { get; set; }
         private NUD NUDEntryLots { get; set; }
@@ -78,7 +82,9 @@ namespace Forex_Strategy_Builder
             LblEntryLots = new Label();
             LblAddingLots = new Label();
             LblReducingLots = new Label();
-            CbxUseMartingale = new CheckBox();
+            LblMoneyManage = new Label();
+            LblMMultipler = new Label();
+            CbxMoneyManagement = new ComboBox();
             NUDMartingaleMultiplier = new NUD();
 
             ChbPermaSL = new CheckBox();
@@ -154,6 +160,8 @@ namespace Forex_Strategy_Builder
                                Language.T("Close - closes the position.") + Environment.NewLine +
                                Language.T("Reverse - reverses the position."));
 
+            
+
             // Label MaxOpen Lots
             LblMaxOpenLots.Parent = PnlAmounts;
             LblMaxOpenLots.ForeColor = ColorText;
@@ -222,6 +230,13 @@ namespace Forex_Strategy_Builder
             LblAddingLots.AutoSize = true;
             LblAddingLots.Text = Language.T("In case of addition - number of lots to add");
 
+            //Lable Money management
+            LblMoneyManage.Parent = PnlAmounts;
+            LblMoneyManage.ForeColor = ColorText;
+            LblMoneyManage.BackColor = Color.Transparent;
+            LblMoneyManage.AutoSize = true;
+            LblMoneyManage.Text = Language.T("Money manegament");
+
             // NumericUpDown Adding Lots
             NUDAddingLots.Parent = PnlAmounts;
             NUDAddingLots.Name = "nudAddingLots";
@@ -259,14 +274,12 @@ namespace Forex_Strategy_Builder
             NUDReducingLots.EndInit();
 
             // CheckBox Use Martingale
-            CbxUseMartingale.Name = "cbxUseMartingale";
-            CbxUseMartingale.Parent = PnlAmounts;
-            CbxUseMartingale.ForeColor = ColorText;
-            CbxUseMartingale.BackColor = Color.Transparent;
-            CbxUseMartingale.AutoCheck = true;
-            CbxUseMartingale.AutoSize = true;
-            CbxUseMartingale.Checked = false;
-            CbxUseMartingale.Text = Language.T("Martingale money management multiplier");
+            LblMMultipler.Name = "LblMMultipler";
+            LblMMultipler.Parent = PnlAmounts;
+            LblMMultipler.ForeColor = ColorText;
+            LblMMultipler.BackColor = Color.Transparent;
+            LblMMultipler.AutoSize = true;
+            LblMMultipler.Text = Language.T("Money management multiplier");
 
             // NumericUpDown Martingale Multiplier
             NUDMartingaleMultiplier.Parent = PnlAmounts;
@@ -279,6 +292,21 @@ namespace Forex_Strategy_Builder
             NUDMartingaleMultiplier.Value = 2;
             NUDMartingaleMultiplier.TextAlign = HorizontalAlignment.Center;
             NUDMartingaleMultiplier.EndInit();
+
+            // ComboBox Strategy
+            CbxMoneyManagement.Parent = PnlAmounts;
+            CbxMoneyManagement.Name = "CbxMoneyManagement";
+            CbxMoneyManagement.DropDownStyle = ComboBoxStyle.DropDownList;
+            var oppItems2 = new[] { MoneyManageStrategy.None.ToString(), MoneyManageStrategy.Martingale.ToString(), 
+                MoneyManageStrategy.Martingale5.ToString(), MoneyManageStrategy.AntyMartingale.ToString()   };
+            foreach (var item in oppItems2)
+                CbxMoneyManagement.Items.Add(item);
+            CbxMoneyManagement.SelectedIndex = 0;
+            toolTip.SetToolTip(CbxMoneyManagement,
+                               "Does nothing" + Environment.NewLine +
+                               "Martingale money management" + Environment.NewLine +
+                               "Martingale money management with limit" + Environment.NewLine +
+                               "Increase/decrease if winning/losing" + Environment.NewLine);
 
 
             // Label Reducing Lots %
@@ -427,6 +455,7 @@ namespace Forex_Strategy_Builder
                    3*RbVariableUnits.Font.Height)
                 RbVariableUnits.Width++;
             g.Dispose();
+
             if (_leftPanelsWidth < space + RbVariableUnits.Width + space)
                 _leftPanelsWidth = space + RbVariableUnits.Width + space;
 
@@ -435,6 +464,9 @@ namespace Forex_Strategy_Builder
 
             if (_leftPanelsWidth < space + LblAddingLots.Width + space + lblPercentWidth + nudWidth + space)
                 _leftPanelsWidth = space + LblAddingLots.Width + space + lblPercentWidth + nudWidth + space;
+
+            if (_leftPanelsWidth < space + LblMoneyManage.Width + space + lblPercentWidth + nudWidth + space)
+                _leftPanelsWidth = space + LblMoneyManage.Width + space + lblPercentWidth + nudWidth + space;
 
             if (_leftPanelsWidth < space + LblReducingLots.Width + space + lblPercentWidth + nudWidth + space)
                 _leftPanelsWidth = space + LblReducingLots.Width + space + lblPercentWidth + nudWidth + space;
@@ -445,7 +477,9 @@ namespace Forex_Strategy_Builder
             if (_rightPanelsWidth < requiredRightPanelWidth)
                 _rightPanelsWidth = requiredRightPanelWidth;
 
-            ClientSize = new Size(space + _leftPanelsWidth + space + _rightPanelsWidth + space, 390);
+            int height = 390;
+            height = 450;
+            ClientSize = new Size(space + _leftPanelsWidth + space + _rightPanelsWidth + space, height);
         }
 
         protected override void OnResize(EventArgs e)
@@ -468,7 +502,7 @@ namespace Forex_Strategy_Builder
             PnlAveraging.Location = new Point(space, space);
 
             // pnlAmounts
-            PnlAmounts.Size = new Size(_leftPanelsWidth, 252);
+            PnlAmounts.Size = new Size(_leftPanelsWidth, 292);
             PnlAmounts.Location = new Point(space, PnlAveraging.Bottom + space);
 
             // pnlProtection
@@ -515,9 +549,14 @@ namespace Forex_Strategy_Builder
             LblPercent3.Width = lblPercentWidth;
             LblPercent3.Location = new Point(NUDReducingLots.Left - lblPercentWidth, LblReducingLots.Top);
 
-            CbxUseMartingale.Location = new Point(btnHrzSpace + 2, 223);
+            //money mangement strategy
+            LblMoneyManage.Location = new Point(btnHrzSpace, 223);
+            CbxMoneyManagement.Location = new Point(nudLeft - 25, 221);
+            CbxMoneyManagement.Size = new Size(nudWidth + 25, buttonHeight);
+            
+            LblMMultipler.Location = new Point(btnHrzSpace, 250);
             NUDMartingaleMultiplier.Size = new Size(nudWidth, buttonHeight);
-            NUDMartingaleMultiplier.Location = new Point(nudLeft, 221);
+            NUDMartingaleMultiplier.Location = new Point(nudLeft, 248);
 
             nudLeft = _rightPanelsWidth - nudWidth - btnHrzSpace - border;
             comboBxLeft = nudLeft - space - rightComboBxWith;
@@ -581,8 +620,8 @@ namespace Forex_Strategy_Builder
             Data.Strategy.EntryLots = 1;
             Data.Strategy.AddingLots = 1;
             Data.Strategy.ReducingLots = 1;
-            Data.Strategy.UseMartingale = false;
             Data.Strategy.MartingaleMultiplier = 2;
+            Data.Strategy.MoneyManagementStrat = MoneyManageStrategy.None;
 
             SetParams();
             CalculateStrategy();
@@ -596,7 +635,7 @@ namespace Forex_Strategy_Builder
             NUDBreakEven.Enabled = ChbBreakEven.Checked;
             CbxPermaSLType.Enabled = ChbPermaSL.Checked;
             CbxPermaTPType.Enabled = ChbPermaTP.Checked;
-            NUDMartingaleMultiplier.Enabled = CbxUseMartingale.Checked;
+            NUDMartingaleMultiplier.Enabled = CbxMoneyManagement.SelectedIndex > 0;
 
             if (!RbVariableUnits.Checked)
                 NUDEntryLots.Value = Math.Min(NUDEntryLots.Value, NUDMaxOpenLots.Value);
@@ -616,8 +655,8 @@ namespace Forex_Strategy_Builder
             Data.Strategy.PermanentSL = (int) NUDPermaSL.Value;
             Data.Strategy.PermanentTP = (int) NUDPermaTP.Value;
             Data.Strategy.BreakEven = (int) NUDBreakEven.Value;
-            Data.Strategy.UseMartingale = CbxUseMartingale.Checked;
             Data.Strategy.MartingaleMultiplier = (double) NUDMartingaleMultiplier.Value;
+            Data.Strategy.MoneyManagementStrat = (MoneyManageStrategy)CbxMoneyManagement.SelectedIndex;
 
             SetLabelPercent();
             CalculateStrategy();
@@ -628,6 +667,7 @@ namespace Forex_Strategy_Builder
         {
             RemoveParamEventHandlers();
 
+            CbxMoneyManagement.SelectedIndex = (int)Data.Strategy.MoneyManagementStrat;
             CbxSameDirAction.SelectedIndex = (int) Data.Strategy.SameSignalAction;
             CbxOppDirAction.SelectedIndex = (int) Data.Strategy.OppSignalAction;
             CbxOppDirAction.Enabled = Data.Strategy.Slot[Data.Strategy.CloseSlot].IndicatorName != "Close and Reverse";
@@ -645,9 +685,8 @@ namespace Forex_Strategy_Builder
             NUDAddingLots.Value = (decimal) Data.Strategy.AddingLots;
             NUDReducingLots.Value = (decimal) Data.Strategy.ReducingLots;
 
-            CbxUseMartingale.Checked = Data.Strategy.UseMartingale;
             NUDMartingaleMultiplier.Value = (decimal) Data.Strategy.MartingaleMultiplier;
-            NUDMartingaleMultiplier.Enabled = CbxUseMartingale.Checked;
+            NUDMartingaleMultiplier.Enabled = CbxMoneyManagement.SelectedIndex > 0;
 
             ChbPermaSL.Checked = Data.Strategy.UsePermanentSL;
             NUDPermaSL.Value = Data.Strategy.PermanentSL;
@@ -671,6 +710,7 @@ namespace Forex_Strategy_Builder
 
         private void SetParamEventHandlers()
         {
+            CbxMoneyManagement.SelectedIndexChanged += ParamChanged;
             CbxSameDirAction.SelectedIndexChanged += ParamChanged;
             CbxOppDirAction.SelectedIndexChanged += ParamChanged;
             RbConstantUnits.CheckedChanged += ParamChanged;
@@ -687,7 +727,6 @@ namespace Forex_Strategy_Builder
             NUDPermaTP.ValueChanged += ParamChanged;
             NUDBreakEven.ValueChanged += ParamChanged;
             ChbBreakEven.CheckedChanged += ParamChanged;
-            CbxUseMartingale.CheckedChanged += ParamChanged;
             NUDMartingaleMultiplier.ValueChanged += ParamChanged;
         }
 
@@ -709,7 +748,7 @@ namespace Forex_Strategy_Builder
             NUDPermaTP.ValueChanged -= ParamChanged;
             NUDBreakEven.ValueChanged -= ParamChanged;
             ChbBreakEven.CheckedChanged -= ParamChanged;
-            CbxUseMartingale.CheckedChanged -= ParamChanged;
+            CbxMoneyManagement.SelectedIndexChanged -= ParamChanged;
             NUDMartingaleMultiplier.ValueChanged -= ParamChanged;
         }
 

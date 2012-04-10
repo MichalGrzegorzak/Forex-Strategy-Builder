@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Forex_Strategy_Builder.MoneyManaging;
 
 namespace Forex_Strategy_Builder
 {
@@ -22,6 +23,7 @@ namespace Forex_Strategy_Builder
         private static PositionCoordinates[] _posCoord;
         private static StrategyPriceType _openStrPriceType;
         private static StrategyPriceType _closeStrPriceType;
+        private static MoneyManager _moneyManager;
 
         // Environment
         private static ExecutionTime _openTimeExec;
@@ -49,6 +51,7 @@ namespace Forex_Strategy_Builder
 
         // Martingale
         private static int _consecutiveLosses;
+        private static int _consecutiveWins;
 
         /// <summary>
         /// Gets the maximum number of orders.
@@ -88,6 +91,7 @@ namespace Forex_Strategy_Builder
             IsScanPerformed = false;
             _micron = InstrProperties.Point/2d;
             _lastEntryTime = new DateTime();
+            
 
             // Sets the maximum lots
             _maximumLots = 100;
@@ -190,6 +194,8 @@ namespace Forex_Strategy_Builder
 
             // Martingale
             _consecutiveLosses = 0;
+            _consecutiveWins = 0;
+            _moneyManager = new MoneyManager(Strategy.MoneyManagementStrat);
         }
 
         /// <summary>
@@ -361,6 +367,7 @@ namespace Forex_Strategy_Builder
                 position.MoneyEquity = position.MoneyBalance;
 
                 _consecutiveLosses = position.ProfitLoss < 0 ? _consecutiveLosses + 1 : 0;
+                _consecutiveWins = position.ProfitLoss > 0 ? _consecutiveWins + 1 : 0;
                 return;
             }
 
@@ -391,6 +398,7 @@ namespace Forex_Strategy_Builder
                 position.MoneyEquity = position.MoneyBalance;
 
                 _consecutiveLosses = position.ProfitLoss < 0 ? _consecutiveLosses + 1 : 0;
+                _consecutiveWins = position.ProfitLoss > 0 ? _consecutiveWins + 1 : 0;
                 return;
             }
 
@@ -481,6 +489,7 @@ namespace Forex_Strategy_Builder
                 position.MoneyEquity = position.MoneyBalance + position.MoneyFloatingPL;
 
                 _consecutiveLosses = 0;
+                _consecutiveWins = 0;
                 return;
             }
 
@@ -513,6 +522,7 @@ namespace Forex_Strategy_Builder
                 position.MoneyEquity = position.MoneyBalance + position.MoneyFloatingPL;
 
                 _consecutiveLosses = 0;
+                _consecutiveWins = 0;
                 return;
             }
 
@@ -545,6 +555,7 @@ namespace Forex_Strategy_Builder
                 position.MoneyEquity = position.MoneyBalance + position.MoneyFloatingPL;
 
                 _consecutiveLosses = 0;
+                _consecutiveWins = 0;
                 return;
             }
 
@@ -580,6 +591,7 @@ namespace Forex_Strategy_Builder
                 position.MoneyEquity = position.MoneyBalance + position.MoneyFloatingPL;
 
                 _consecutiveLosses = 0;
+                _consecutiveWins = 0;
             }
         }
 
@@ -860,11 +872,10 @@ namespace Forex_Strategy_Builder
                 {
                     // Open a new position
                     double entryAmount = TradingSize(Strategy.EntryLots, bar);
-                    if (Strategy.UseMartingale && _consecutiveLosses > 0)
-                    {
-                        entryAmount = entryAmount*Math.Pow(Strategy.MartingaleMultiplier, _consecutiveLosses);
-                        entryAmount = NormalizeEntryLots(entryAmount);
-                    }
+
+                    entryAmount = _moneyManager.CountAmount(entryAmount, Strategy.MartingaleMultiplier, _consecutiveLosses, _consecutiveWins);
+                    entryAmount = NormalizeEntryLots(entryAmount);
+
                     order.OrdLots = Math.Min(entryAmount, _maximumLots);
                     wayPointType = WayPointType.Entry;
                 }
@@ -1026,6 +1037,8 @@ namespace Forex_Strategy_Builder
                 _session[bar].WayPoint[_session[bar].WayPoints - 1].OrdNumb = order.OrdNumb;
             }
         }
+
+        
 
         /// <summary>
         /// Finds and cancels the exit order of an entry order

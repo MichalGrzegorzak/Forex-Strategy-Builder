@@ -5,9 +5,11 @@
 // This code or any part of it cannot be used in other applications without a permission.
 
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml;
+using Forex_Strategy_Builder.Enumerations;
 
 namespace Forex_Strategy_Builder
 {
@@ -36,6 +38,7 @@ namespace Forex_Strategy_Builder
             EntryLots = 1;
             AddingLots = 1;
             ReducingLots = 1;
+            MoneyManagementStrat = MoneyManageStrategy.None;
             MartingaleMultiplier = 2.0;
             CreateStrategy(openFilters, closeFilters);
         }
@@ -149,12 +152,20 @@ namespace Forex_Strategy_Builder
         /// <summary>
         /// Gets or sets if the strategy uses Martingale Money Management.
         /// </summary>
-        public bool UseMartingale { get; set; }
+        //public bool UseMartingale { get; set; }
 
         /// <summary>
         /// Gets or sets the Martingale multiplier
         /// </summary>
         public double MartingaleMultiplier { get; set; }
+
+        MoneyManageStrategy _mmStra = MoneyManageStrategy.None;
+        //[DefaultValue(2)]
+        public MoneyManageStrategy MoneyManagementStrat { get; set; }
+        //{
+        //    get { return _mmStra; }
+        //    set { _mmStra = value; }
+        //}
 
         /// <summary>
         /// Gets or sets the Strategy description
@@ -676,7 +687,7 @@ namespace Forex_Strategy_Builder
                                        EntryLots = EntryLots,
                                        AddingLots = AddingLots,
                                        ReducingLots = ReducingLots,
-                                       UseMartingale = UseMartingale,
+                                       MoneyManagementStrat = MoneyManagementStrat,
                                        MartingaleMultiplier = MartingaleMultiplier,
                                        UsePermanentSL = UsePermanentSL,
                                        PermanentSLType = PermanentSLType,

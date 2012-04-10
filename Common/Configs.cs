@@ -29,19 +29,19 @@ namespace Forex_Strategy_Builder
         private const int SigmaModeSeparatedChartDefault = 5;
 
         private const string LanguageDefault = "English";
-        private const bool ShowStartingTipDefault = true;
+        private const bool ShowStartingTipDefault = false;
         private const int CurrentTipNumberDefault = -1;
         private const bool IsGradientViewDefault = true;
         private const string DataDirectoryDefault = "";
         private const string ColorSchemeDefault = "Light Blue";
         private const bool IsRememberLastStrDefault = true;
         private const string LastStrategyDefault = "";
-        private const bool IsCheckForUpdatesDefault = true;
+        private const bool IsCheckForUpdatesDefault = false;
         private const bool IsCheckForNewBetaDefault = false;
         private const bool IsCheckDataDefault = true;
         private const bool IsFillDataGapsDefault = false;
         private const bool IsCutBadDataDefault = false;
-        private const bool IsLoadCustIndDefault = true;
+        private const bool IsLoadCustIndDefault = false;
         private const bool IsShowCustIndDefault = false;
         private const int MaxBarsDefault = 20000;
         private static readonly DateTime DataStartTimeDefault = new DateTime(1990, 1, 1, 0, 0, 0);

@@ -8,6 +8,7 @@ using System;
 using System.Globalization;
 using System.Windows.Forms;
 using System.Xml;
+using Forex_Strategy_Builder.Enumerations;
 
 namespace Forex_Strategy_Builder
 {
@@ -110,8 +111,8 @@ namespace Forex_Strategy_Builder
             if (xmlDocStrategy.DocumentElement != null) xmlDocStrategy.DocumentElement.AppendChild(newElem);
 
             // Add Use Martingale MM
-            newElem = xmlDocStrategy.CreateElement("useMartingale");
-            newElem.InnerText = strategy.UseMartingale.ToString(CultureInfo.InvariantCulture);
+            newElem = xmlDocStrategy.CreateElement("moneyManagement");
+            newElem.InnerText = strategy.MoneyManagementStrat.ToString(CultureInfo.InvariantCulture);
             if (xmlDocStrategy.DocumentElement != null) xmlDocStrategy.DocumentElement.AppendChild(newElem);
 
             // Add the Martingale Multiplier
@@ -332,14 +333,14 @@ namespace Forex_Strategy_Builder
             tempStrategy.ReducingLots = StringToDouble(xmlDocStrategy.GetElementsByTagName("reducingLots")[0].InnerText);
             try
             {
-                tempStrategy.UseMartingale =
-                    bool.Parse(xmlDocStrategy.GetElementsByTagName("useMartingale")[0].InnerText);
+                tempStrategy.MoneyManagementStrat =
+                    (MoneyManageStrategy)Enum.Parse(typeof(MoneyManageStrategy), xmlDocStrategy.GetElementsByTagName("moneyManagement")[0].InnerText);
                 tempStrategy.MartingaleMultiplier =
                     StringToDouble(xmlDocStrategy.GetElementsByTagName("martingaleMultiplier")[0].InnerText);
             }
             catch
             {
-                tempStrategy.UseMartingale = false;
+                tempStrategy.MoneyManagementStrat = MoneyManageStrategy.None;
                 tempStrategy.MartingaleMultiplier = 2.0;
             }
 

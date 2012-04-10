@@ -87,6 +87,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Backtester\MoneyManager.cs" />
     <Compile Include="CustomControls\CloseButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -97,6 +98,7 @@
     <Compile Include="Enumerations\ChartButtons.cs" />
     <Compile Include="Enumerations\BacktestEval.cs" />
     <Compile Include="Enumerations\InterpolationMethod.cs" />
+    <Compile Include="Enumerations\MoneyManageStrategy.cs" />
     <Compile Include="Enumerations\OrderIcons.cs" />
     <Compile Include="Enumerations\PositionIcons.cs" />
     <Compile Include="Enumerations\StrategyPriceType.cs" />
